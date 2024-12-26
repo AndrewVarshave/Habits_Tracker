@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (!isGranted) {
-                    Toast.makeText(this, "Permission for notifications is not granted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Недопустимо", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -69,18 +69,18 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
 
     private void showAddHabitDialog(Habit habit) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(habit == null ? "Add New Habit" : "Edit Habit");
+        builder.setTitle(habit == null ? "Добавить привычку" : "Изменить привычку");
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         final EditText descriptionEditText = new EditText(this);
         descriptionEditText.setInputType(InputType.TYPE_CLASS_TEXT);
         descriptionEditText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(25)});
-        descriptionEditText.setHint("Description");
+        descriptionEditText.setHint("Описание");
         layout.addView(descriptionEditText);
         final int[] selectedHour = {0};
         final int[] selectedMinute = {0};
         final EditText timeEditText = new EditText(this);
-        timeEditText.setHint("Time");
+        timeEditText.setHint("Время");
         timeEditText.setInputType(InputType.TYPE_NULL);
         timeEditText.setFocusable(false);
         timeEditText.setClickable(true);
@@ -97,10 +97,10 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
             timeEditText.setText(String.format("%02d:%02d", selectedHour[0], selectedMinute[0]));
         }
 
-        builder.setPositiveButton(habit == null ? "Add" : "Update", (dialog, which) -> {
+        builder.setPositiveButton(habit == null ? "Добавить" : "Обновить", (dialog, which) -> {
             String description = descriptionEditText.getText().toString().trim();
             if(description.isEmpty() || timeEditText.getText().toString().isEmpty()){
-                Toast.makeText(MainActivity.this, "Description or time is not filled", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Описание или время не указано", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
                 habitViewModel.checkHabitExists(description, selectedHour[0], selectedMinute[0])
                         .observe(this, count -> {
                             if (count > 0) {
-                                Toast.makeText(this, "Habit with such description and time exists", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Такая привычка уже существует", Toast.LENGTH_SHORT).show();
                             } else {
                                 Habit newHabit = new Habit(description, selectedHour[0], selectedMinute[0], true);
                                 habitViewModel.insert(newHabit);
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
                     habitViewModel.checkHabitExists(description, selectedHour[0], selectedMinute[0])
                             .observe(this, count -> {
                                 if (count > 0) {
-                                    Toast.makeText(this, "Habit with such description and time exists", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(this, "Такая привычка уже существует", Toast.LENGTH_SHORT).show();
                                 } else {
                                     habit.setDescription(description);
                                     habit.setHour(selectedHour[0]);
@@ -134,14 +134,14 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
         });
 
         if (habit != null) {
-            builder.setNeutralButton("Delete", (dialog, which) -> {
+            builder.setNeutralButton("Удалить", (dialog, which) -> {
                 showDeleteConfirmationDialog(habit);
                 dialog.dismiss(); // Закрываем диалог редактирования
             });
         }
 
 
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
         builder.show();
     }
     private void showTimePickerDialog(int[] selectedHour, int[] selectedMinute, EditText timeEditText) {
@@ -197,15 +197,15 @@ public class MainActivity extends AppCompatActivity implements HabitAdapter.OnIt
 
     private void showDeleteConfirmationDialog(Habit habit) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Delete Habit");
-        builder.setMessage("Are you sure you want to delete this habit?");
-        builder.setPositiveButton("Delete", (dialog, which) -> {
+        builder.setTitle("Удалить привычку");
+        builder.setMessage("Вы хотите удалить привычку?");
+        builder.setPositiveButton("Удалить", (dialog, which) -> {
                     habitViewModel.delete(habit);
                     cancelAlarm(habit);
-                    Toast.makeText(this, "Habit deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Привычка удалена", Toast.LENGTH_SHORT).show();
                 }
         );
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setNegativeButton("Отмена", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 }
